@@ -347,11 +347,11 @@ void releaseAllKeys() {
   for (int i = i; i < 6; i++) {
     report.keys[i] = 0x0;
   }
-  for (int i = 0; i < rows; i++) {
-    for (int j = 0; j < cols + extraCols; j++) {
+  //for (int i = 0; i < rows; i++) {
+    //for (int j = 0; j < cols + extraCols; j++) {
       //prevScan[i][j] = 1;
-    }
-  }
+    //}
+  //}
   report.modifiers = 0x00;
   mouse.x = 0;
   mouse.y = 0;
