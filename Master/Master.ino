@@ -20,6 +20,8 @@ int prevScan[rows][cols + extraCols] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1
 int currScan[rows][cols + extraCols] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 uint16_t keebLayout[rows][cols + extraCols] = {{}, {}, {}, {}, {}};
+uint16_t prevLayout[rows][cols + extraCols] = {{}, {}, {}, {}, {}};
+
 uint16_t alphaLayer[rows][cols + extraCols] = {{0x29, 0x35, 0xea, 0xe2, 0xe9, 0x3b, 0x3e, 0xb6, 0xcd, 0xb5, 0x46, 0x4c},
                                                 {0x2b, 0x14, 0x1a, 0x08, 0x15, 0x17, 0x1c, 0x18, 0x0c, 0x12, 0x13, 0x31},
                                                 {0x82, 0x04, 0x16, 0x07, 0x09, 0x0a, 0x0b, 0x0d, 0x0e, 0x0f, 0x33, 0x34},
@@ -97,6 +99,8 @@ void setup() {
     pinMode(colPins[i], INPUT_PULLUP);
   }
   memmove( keebLayout, alphaLayer, sizeof(keebLayout) );
+  memmove( prevLayout, alphaLayer, sizeof(keebLayout) );
+
 
 
 }
@@ -119,24 +123,27 @@ void loop() {
       if (currScan[i][j] != prevScan[i][j]) {
         if (keebLayout[i][j] >= 0xf0 && keebLayout[i][j] <= 0xff ) { //check here for keys that will change the layer
           if(currScan[i][j] == 0){
+            memmove(prevLayout, keebLayout, sizeof(keebLayout));
             if (keebLayout[i][j] == 0xf0) {
               memmove(keebLayout, alphaLayer, sizeof(keebLayout));
-              
             }
             else if ( keebLayout[i][j] == 0xf1) {
               memmove(keebLayout, symbolLayer, sizeof(keebLayout));
-              
             }
             else if (keebLayout[i][j] == 0xf2) {
               memmove(keebLayout, numLayer, sizeof(keebLayout));
-              
             }
             else if (keebLayout[i][j] == 0xf3) {
               memmove(keebLayout, mouseLayer, sizeof(keebLayout));
-              
             }
-            else if (keebLayout[i][j] == 0xf4) {
+            else if (keebLayout[i][j] == 0xf4) {    
               memmove(keebLayout, gameLayer, sizeof(keebLayout));
+            }
+            releaseAllKeys();
+          }
+          else{ 
+            if (keebLayout[0][1] != gameLayer[0][1] && keebLayout[0][1] != alphaLayer[0][1]) {
+              memmove(keebLayout, alphaLayer, sizeof(keebLayout));
             }
             releaseAllKeys();
           }
@@ -342,7 +349,7 @@ void releaseAllKeys() {
   }
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols + extraCols; j++) {
-      prevScan[i][j] = 1;
+      //prevScan[i][j] = 1;
     }
   }
   report.modifiers = 0x00;
