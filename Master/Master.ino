@@ -91,6 +91,7 @@ KeyReport report;
 ConsumerReport conReport;
 
 void setup() {
+  //Serial.begin(1200);
   Wire.begin(4);
   Wire.onReceive(receiveEvent);
 
@@ -123,7 +124,9 @@ void loop() {
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols + extraCols; j++) {
       if (currScan[i][j] != prevScan[i][j]) {
+        //Serial.print(keebLayout[i][j], HEX);
         if (keebLayout[i][j] >= HOLD_LAYER_0 && keebLayout[i][j] <= HOLD_LAYER_6 ) { //check here for keys that will change the layer while HELD
+          //Serial.print("HOLD");
           if (currScan[i][j] == 0) {
             memmove(prevLayout, keebLayout, sizeof(keebLayout));
             if (keebLayout[i][j] == HOLD_LAYER_0) {
@@ -149,6 +152,7 @@ void loop() {
           }
         }
         else if (keebLayout[i][j] >= TOGGLE_LAYER_0 && keebLayout[i][j] <= TOGGLE_LAYER_6 ) { //check here for keys that will TOGGLE the layer
+          //Serial.print("TOGGLE");
           if (currScan[i][j] == 0) {
             if (keebLayout[i][j] == TOGGLE_LAYER_0) {
               memmove(keebLayout, alphaLayer, sizeof(keebLayout));
@@ -170,7 +174,8 @@ void loop() {
             releaseAllKeys();
           }
         }
-        else if (keebLayout[i][j] > BEGIN_MEDIA && keebLayout[i][i] < END_MEDIA) {
+        else if (keebLayout[i][j] > BEGIN_MEDIA && keebLayout[i][j] < END_MEDIA) {
+          //Serial.print("MEDIA");
           if (currScan[i][j] == 0) {
             pressKeyConsumer(keebLayout[i][j]);
           }
@@ -179,6 +184,7 @@ void loop() {
           }
         }
         else if (keebLayout[1][3] == mouseLayer[1][3]) {
+          //Serial.print("MOUSE");
           if (currScan[i][j] == 0) {
             switch (keebLayout[i][j]) {
               case 1:
@@ -255,12 +261,15 @@ void loop() {
           }
         }
         else if (currScan[i][j] == 0) {
+          //Serial.print("REGULARDOWN");
           pressKey(keebLayout[i][j]);
         }
         else {
+          //Serial.print("REGULARUP");
           releaseKey(keebLayout[i][j]);
         }
         prevScan[i][j] = currScan[i][j];
+        //Serial.print("\n");
       }
     }
   }
@@ -277,11 +286,8 @@ void sendReport(KeyReport *keys)
 }
 
 void pressKey(uint16_t key) {
-  if (key > 0xf000) {
-    key = key - 0xf000;
-  }
-  if (key >= 0xff) {
-    key = key - 0xf00;
+  if (key >= 0x0f00) {
+    key = key - 0x0f00;
     pressKey(0x81);
     delay(10);
     pressKey(key);
@@ -308,10 +314,7 @@ void pressKey(uint16_t key) {
 }
 
 void releaseKey(uint16_t key) {
-  if (key > 0xf000) {
-    key = key - 0xf000;
-  }
-  if (key >= 0xf00) {
+  if (key > 0x0f00) {
     
   }
   else if (key >= 0x80) {

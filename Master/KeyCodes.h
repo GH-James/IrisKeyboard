@@ -179,7 +179,8 @@
 
 //MEDIA KEYS
 #define BEGIN_MEDIA 0x0088
-#define END_MEDIA 0x00f0
+#define END_MEDIA 0x00ef
+
 #define MEDIA_VOL_MUTE 0x00E2
 #define MEDIA_VOL_UP 0x00E9
 #define MEDIA_VOL_DOWN 0x00EA
