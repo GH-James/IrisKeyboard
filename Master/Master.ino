@@ -90,6 +90,7 @@ KeyReport report;
 ConsumerReport conReport;
 
 void setup() {
+  //Serial.begin(9600);
   Wire.begin(4);
   Wire.onReceive(receiveEvent);
 
@@ -118,7 +119,6 @@ void loop() {
       currScan[i][j] = digitalRead(colPins[j]);
     }
     digitalWrite(rowPins[i], HIGH);
-
   }
 
 
@@ -263,6 +263,8 @@ void sendReport(KeyReport *keys)
 }
 
 void pressKey(uint16_t key) {
+  //Serial.print(key, HEX);
+  //Serial.print('\n');
   if (key > 0xf000) {
     key = key - 0xf000;
   }
