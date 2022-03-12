@@ -1,5 +1,6 @@
 #include <HID.h>
 #include <Wire.h>
+#include "KeyCodes.h"
 
 #define rows 5
 #define cols 6
@@ -16,50 +17,50 @@ bool mouseScrollUp = false;
 bool mouseScrollDown = false;
 int lastMouseMove = 0;
 
-int prevScan[rows][cols + extraCols] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
-int currScan[rows][cols + extraCols] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+bool prevScan[rows][cols + extraCols] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
+bool currScan[rows][cols + extraCols] = {{1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}, {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1}};
 
 uint16_t keebLayout[rows][cols + extraCols] = {{}, {}, {}, {}, {}};
 uint16_t prevLayout[rows][cols + extraCols] = {{}, {}, {}, {}, {}};
 
 uint16_t alphaLayer[rows][cols + extraCols] = {
-  {0x29, 0x35, 0xea, 0xe2, 0xe9, 0x3b, 0x3e, 0xb6, 0xcd, 0xb5, 0x46, 0x4c},
-  {0x2b, 0x14, 0x1a, 0x08, 0x15, 0x17, 0x1c, 0x18, 0x0c, 0x12, 0x13, 0x31},
-  {0x82, 0x04, 0x16, 0x07, 0x09, 0x0a, 0x0b, 0x0d, 0x0e, 0x0f, 0x33, 0x34},
-  {0x80, 0x1d, 0x1b, 0x06, 0x19, 0x05, 0x11, 0x10, 0x36, 0x37, 0x38, 0xf3},
-  {0x00, 0x00, 0x83, 0x2a, 0x81, 0xf1, 0xf2, 0x2c, 0x28, 0x86, 0x00, 0x00}
+  {KEY_ESC , KEY_GRAVE, MEDIA_PREV, MEDIA_PLAY_PAUSE, MEDIA_NEXT, KEY_F2      ,/*     */KEY_F5      , MEDIA_VOL_DOWN, MEDIA_VOL_MUTE, MEDIA_VOL_UP, KEY_PRINT_SCREEN, KEY_DELETE},
+  {KEY_TAB , KEY_Q    , KEY_W     , KEY_E           , KEY_R     , KEY_T       ,/*     */KEY_Y       , KEY_U         , KEY_I         , KEY_O       , KEY_P           , KEY_BACKSLASH},
+  {KEY_ALT , KEY_A    , KEY_S     , KEY_D           , KEY_F     , KEY_G       ,/*     */KEY_H       , KEY_J         , KEY_K         , KEY_L       , KEY_SEMICOLON   , KEY_APOSTROPHE},
+  {KEY_CTRL, KEY_Z    , KEY_X     , KEY_C           , KEY_V     , KEY_B       ,/*     */KEY_N       , KEY_M         , KEY_COMMA     , KEY_DOT     , KEY_SLASH       , HOLD_LAYER_3},
+  {KEY_NONE, KEY_NONE , KEY_META  , KEY_BACKSPACE   , KEY_SHIFT , HOLD_LAYER_1,/*     */HOLD_LAYER_2, KEY_SPACE     , KEY_ENTER     , KEY_ALT     , KEY_NONE        , KEY_NONE}
 };
 
 uint16_t symbolLayer[rows][cols + extraCols] = {
-  {0x3a, 0x3b, 0x3c, 0x3d, 0x3e, 0x3f, 0x40, 0x41, 0x42, 0x43, 0x44, 0x45},
-  {0xf4, 0xf01e, 0x1f, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x2a},
-  {0x2b, 0xf36, 0xf37, 0xf2f, 0xf30, 0xf1f, 0xf21, 0xf26, 0xf27, 0xf33, 0x33, 0xf23},
-  {0x80, 0x38, 0xf2d, 0xf02f, 0x30, 0xf20, 0x2d, 0xf24, 0xf31, 0xf2e, 0xf25, 0xf22},
-  {0x0, 0x0, 0x83, 0x2a, 0x81, 0xf0, 0xf2, 0x2c, 0x28, 0x86, 0x0, 0x0}
+  {KEY_F1         , KEY_F2          , KEY_F3        , KEY_F4        , KEY_F5          , KEY_F6      ,/*     */KEY_F7    , KEY_F8          , KEY_F9            , KEY_F10   , KEY_F11       , KEY_F12},
+  {TOGGLE_LAYER_4 , KEY_EXCLAMATION , KEY_2         , KEY_3         , KEY_4           , KEY_5       ,/*     */KEY_6     , KEY_7           , KEY_8             , KEY_9     , KEY_0         , KEY_DELETE},
+  {KEY_TAB        , KEY_LESS        , KEY_GREATER   , KEY_LEFT_CURLY, KEY_RIGHT_CURLY , KEY_AT      ,/*     */KEY_DOLLAR, KEY_LEFT_BRACKET, KEY_RIGHT_BRACKET , KEY_COLON , KEY_SEMICOLON , KEY_CARET},
+  {KEY_CTRL       , KEY_SLASH       , KEY_UNDERSCORE, KEY_LEFTBRACE , KEY_RIGHTBRACE  , KEY_HASH    ,/*     */KEY_MINUS , KEY_AMPERSAND   , KEY_PIPE          , KEY_PLUS  , KEY_ASTERISK  , KEY_MODULO},
+  {KEY_NONE       , KEY_NONE        , KEY_META      , KEY_BACKSPACE , KEY_SHIFT       , HOLD_LAYER_0,/*     */KEY_NONE  , KEY_SPACE       , KEY_ENTER         , KEY_ALT   , KEY_NONE      , KEY_NONE}
 };
 
 uint16_t numLayer[rows][cols + extraCols] = {
-  {0x29, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x53, 0x00, 0x00, 0x4c},
-  {0x00, 0x4b, 0xf26, 0x52, 0x27, 0x4a, 0x54, 0x5f, 0x60, 0x61, 0x56, 0x00},
-  {0x2b, 0x4e, 0x50, 0x51, 0x4f, 0x4d, 0x62, 0x5c, 0x5d, 0x5e, 0x57, 0x2e},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x55, 0x59, 0x5a, 0x5b, 0x37, 0x00},
-  {0x0, 0x0, 0x83, 0x2a, 0x81, 0xf1, 0xf0, 0x2c, 0x28, 0x86, 0x0, 0x0}
+  {KEY_ESC  , KEY_NONE    , KEY_NONE, KEY_NONE      , KEY_NONE  , KEY_NONE,/*     */KEY_NONE      , KEY_NONE  , KEY_NUMLOCK , KEY_NONE, KEY_NONE    , KEY_DELETE},
+  {KEY_TAB  , KEY_PAGEUP  , KEY_NONE, KEY_UP        , KEY_NONE  , KEY_HOME,/*     */KEY_KPSLASH   , KEY_KP7   , KEY_KP8     , KEY_KP9 , KEY_KPMINUS , KEY_NONE},
+  {KEY_TAB  , KEY_PAGEDOWN, KEY_LEFT, KEY_DOWN      , KEY_RIGHT , KEY_END ,/*     */KEY_KP0       , KEY_KP4   , KEY_KP5     , KEY_KP6 , KEY_KPPLUS  , KEY_EQUAL},
+  {KEY_NONE , KEY_NONE    , KEY_NONE, KEY_NONE      , KEY_NONE  , KEY_NONE,/*     */KEY_KPASTERISK, KEY_KP1   , KEY_KP2     , KEY_KP3 , KEY_KPDOT   , KEY_NONE},
+  {KEY_NONE , KEY_NONE    , KEY_META, KEY_BACKSPACE , KEY_SHIFT , KEY_NONE,/*     */HOLD_LAYER_0  , KEY_SPACE , KEY_ENTER   , KEY_ALT , KEY_NONE    , KEY_NONE}
 };
 
 uint16_t mouseLayer[rows][cols + extraCols] = {
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x07, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x05, 0x04, 0x06, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xf0},
-  {0x00, 0x00, 0x00, 0x0b, 0x01, 0xf1, 0xf2, 0x02, 0x0c, 0x00, 0x00, 0x00}
+  {KEY_NONE, KEY_NONE, KEY_NONE , KEY_NONE, KEY_NONE, KEY_NONE,/*     */KEY_NONE, KEY_NONE, KEY_NONE, KEY_NONE, KEY_NONE, KEY_NONE},
+  {KEY_NONE, KEY_NONE, KEY_NONE , 0x03    , KEY_NONE, KEY_NONE,/*     */KEY_NONE, KEY_NONE, 0x07    , KEY_NONE, KEY_NONE, KEY_NONE},
+  {KEY_NONE, KEY_NONE, 0x05     , 0x04    , 0x06    , KEY_NONE,/*     */KEY_NONE, KEY_NONE, 0x08    , KEY_NONE, KEY_NONE, KEY_NONE},
+  {KEY_NONE, KEY_NONE, KEY_NONE , KEY_NONE, KEY_NONE, KEY_NONE,/*     */KEY_NONE, KEY_NONE, KEY_NONE, KEY_NONE, KEY_NONE, HOLD_LAYER_0},
+  {KEY_NONE, KEY_NONE, KEY_NONE , 0x0b    , 0x01    , KEY_NONE,/*     */KEY_NONE, 0x02    , 0x0c    , KEY_NONE, 0x00    , KEY_NONE}
 };
 
 uint16_t gameLayer[rows][cols + extraCols] = {
-  {0x29, 0x1e, 0x1f, 0x20, 0x21, 0x22, 0xea, 0xe2, 0xe9, 0xb6, 0xcd, 0xb5},
-  {0x2b, 0x14, 0x1a, 0x08, 0x15, 0x17, 0x1c, 0x18, 0x0c, 0x12, 0x13, 0x43},
-  {0x82, 0x04, 0x16, 0x07, 0x09, 0x0a, 0x0b, 0x0d, 0x0e, 0x0f, 0x33, 0x34},
-  {0x80, 0x1d, 0x1b, 0x06, 0x19, 0x05, 0x11, 0x10, 0x36, 0x37, 0x38, 0xf3},
-  {0x00, 0x00, 0x83, 0x2c, 0x81, 0xf0, 0xf2, 0x2a, 0x28, 0x86, 0x00, 0x00}
+  {KEY_ESC  , KEY_1   , KEY_2   , KEY_3     , KEY_4     , KEY_5         ,/*     */ MEDIA_VOL_DOWN , MEDIA_VOL_MUTE, MEDIA_VOL_UP, MEDIA_PREV, MEDIA_PLAY_PAUSE, MEDIA_NEXT},
+  {KEY_TAB  , KEY_Q   , KEY_W   , KEY_E     , KEY_R     , KEY_T         ,/*     */ KEY_Y          , KEY_U         , KEY_I       , KEY_O     , KEY_P           , KEY_BACKSLASH},
+  {KEY_ALT  , KEY_A   , KEY_S   , KEY_D     , KEY_F     , KEY_G         ,/*     */ KEY_H          , KEY_J         , KEY_K       , KEY_L     , KEY_SEMICOLON   , KEY_APOSTROPHE},
+  {KEY_CTRL , KEY_Z   , KEY_X   , KEY_C     , KEY_V     , KEY_B         ,/*     */ KEY_N          , KEY_M         , KEY_COMMA   , KEY_DOT   , KEY_SLASH       , KEY_NONE},
+  {KEY_NONE , KEY_NONE, KEY_META, KEY_SPACE , KEY_SHIFT , TOGGLE_LAYER_0,/*     */ KEY_NONE       , KEY_BACKSPACE , KEY_ENTER   , KEY_ALT   , KEY_NONE        , KEY_NONE}
 };
 
 typedef struct
@@ -90,7 +91,7 @@ KeyReport report;
 ConsumerReport conReport;
 
 void setup() {
-  //Serial.begin(9600);
+  //Serial.begin(1200);
   Wire.begin(4);
   Wire.onReceive(receiveEvent);
 
@@ -106,9 +107,7 @@ void setup() {
   }
   memmove( keebLayout, alphaLayer, sizeof(keebLayout) );
   memmove( prevLayout, alphaLayer, sizeof(keebLayout) );
-
-
-
+  
 }
 
 void loop() {
@@ -119,41 +118,64 @@ void loop() {
       currScan[i][j] = digitalRead(colPins[j]);
     }
     digitalWrite(rowPins[i], HIGH);
+
   }
-
-
 
   for (int i = 0; i < rows; i++) {
     for (int j = 0; j < cols + extraCols; j++) {
       if (currScan[i][j] != prevScan[i][j]) {
-        if (keebLayout[i][j] >= 0xf0 && keebLayout[i][j] <= 0xff ) { //check here for keys that will change the layer
+        //Serial.print(keebLayout[i][j], HEX);
+        if (keebLayout[i][j] >= HOLD_LAYER_0 && keebLayout[i][j] <= HOLD_LAYER_6 ) { //check here for keys that will change the layer while HELD
+          //Serial.print("HOLD");
           if (currScan[i][j] == 0) {
             memmove(prevLayout, keebLayout, sizeof(keebLayout));
-            if (keebLayout[i][j] == 0xf0) {
+            if (keebLayout[i][j] == HOLD_LAYER_0) {
               memmove(keebLayout, alphaLayer, sizeof(keebLayout));
             }
-            else if ( keebLayout[i][j] == 0xf1) {
+            else if ( keebLayout[i][j] == HOLD_LAYER_1) {
               memmove(keebLayout, symbolLayer, sizeof(keebLayout));
             }
-            else if (keebLayout[i][j] == 0xf2) {
+            else if (keebLayout[i][j] == HOLD_LAYER_2) {
               memmove(keebLayout, numLayer, sizeof(keebLayout));
             }
-            else if (keebLayout[i][j] == 0xf3) {
+            else if (keebLayout[i][j] == HOLD_LAYER_3) {
               memmove(keebLayout, mouseLayer, sizeof(keebLayout));
             }
-            else if (keebLayout[i][j] == 0xf4) {
+            else if (keebLayout[i][j] == HOLD_LAYER_4) {
               memmove(keebLayout, gameLayer, sizeof(keebLayout));
             }
             releaseAllKeys();
           }
           else {
-            if (keebLayout[0][1] != gameLayer[0][1] && keebLayout[0][1] != alphaLayer[0][1]) {
-              memmove(keebLayout, alphaLayer, sizeof(keebLayout));
-            }
+            memmove(keebLayout, prevLayout, sizeof(keebLayout));
             releaseAllKeys();
           }
         }
-        else if (keebLayout[i][j] > 0x88 && keebLayout[i][i] < 0xf0) {
+        else if (keebLayout[i][j] >= TOGGLE_LAYER_0 && keebLayout[i][j] <= TOGGLE_LAYER_6 ) { //check here for keys that will TOGGLE the layer
+          //Serial.print("TOGGLE");
+          if (currScan[i][j] == 0) {
+            if (keebLayout[i][j] == TOGGLE_LAYER_0) {
+              memmove(keebLayout, alphaLayer, sizeof(keebLayout));
+            }
+            else if ( keebLayout[i][j] == TOGGLE_LAYER_1) {
+              memmove(keebLayout, symbolLayer, sizeof(keebLayout));
+            }
+            else if (keebLayout[i][j] == TOGGLE_LAYER_2) {
+              memmove(keebLayout, numLayer, sizeof(keebLayout));
+            }
+            else if (keebLayout[i][j] == TOGGLE_LAYER_3) {
+              memmove(keebLayout, mouseLayer, sizeof(keebLayout));
+            }
+            else if (keebLayout[i][j] == TOGGLE_LAYER_4) {
+              memmove(keebLayout, gameLayer, sizeof(keebLayout));
+            }
+            //should not switch back on release of other layer key
+            memmove(prevLayout, keebLayout, sizeof(keebLayout));
+            releaseAllKeys();
+          }
+        }
+        else if (keebLayout[i][j] > BEGIN_MEDIA && keebLayout[i][j] < END_MEDIA) {
+          //Serial.print("MEDIA");
           if (currScan[i][j] == 0) {
             pressKeyConsumer(keebLayout[i][j]);
           }
@@ -162,11 +184,11 @@ void loop() {
           }
         }
         else if (keebLayout[1][3] == mouseLayer[1][3]) {
+          //Serial.print("MOUSE");
           if (currScan[i][j] == 0) {
             switch (keebLayout[i][j]) {
               case 1:
                 mouseClick(1);
-
                 break;
               case 2:
                 mouseClick(2);
@@ -236,17 +258,18 @@ void loop() {
                 mouseUnClick(16);
                 break;
             }
-
           }
-
         }
         else if (currScan[i][j] == 0) {
+          //Serial.print("REGULARDOWN");
           pressKey(keebLayout[i][j]);
         }
         else {
+          //Serial.print("REGULARUP");
           releaseKey(keebLayout[i][j]);
         }
         prevScan[i][j] = currScan[i][j];
+        //Serial.print("\n");
       }
     }
   }
@@ -263,13 +286,8 @@ void sendReport(KeyReport *keys)
 }
 
 void pressKey(uint16_t key) {
-  //Serial.print(key, HEX);
-  //Serial.print('\n');
-  if (key > 0xf000) {
-    key = key - 0xf000;
-  }
-  if (key >= 0xff) {
-    key = key - 0xf00;
+  if (key >= 0x0f00) {
+    key = key - 0x0f00;
     pressKey(0x81);
     delay(10);
     pressKey(key);
@@ -296,10 +314,7 @@ void pressKey(uint16_t key) {
 }
 
 void releaseKey(uint16_t key) {
-  if (key > 0xf000) {
-    key = key - 0xf000;
-  }
-  if (key >= 0xf00) {
+  if (key > 0x0f00) {
     
   }
   else if (key >= 0x80) {
