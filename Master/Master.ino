@@ -40,10 +40,10 @@ uint16_t symbolLayer[rows][cols + extraCols] = {
 };
 
 uint16_t numLayer[rows][cols + extraCols] = {
-  {KEY_ESC  , KEY_NONE    , KEY_NONE, KEY_NONE      , KEY_NONE  , KEY_NONE,/*     */KEY_NONE      , KEY_NONE  , KEY_NUMLOCK , KEY_NONE, KEY_NONE    , KEY_DELETE},
-  {KEY_TAB  , KEY_PAGEUP  , KEY_NONE, KEY_UP        , KEY_NONE  , KEY_HOME,/*     */KEY_KPSLASH   , KEY_KP7   , KEY_KP8     , KEY_KP9 , KEY_KPMINUS , KEY_NONE},
-  {KEY_TAB  , KEY_PAGEDOWN, KEY_LEFT, KEY_DOWN      , KEY_RIGHT , KEY_END ,/*     */KEY_KP0       , KEY_KP4   , KEY_KP5     , KEY_KP6 , KEY_KPPLUS  , KEY_EQUAL},
-  {KEY_NONE , KEY_NONE    , KEY_NONE, KEY_NONE      , KEY_NONE  , KEY_NONE,/*     */KEY_KPASTERISK, KEY_KP1   , KEY_KP2     , KEY_KP3 , KEY_KPDOT   , KEY_NONE},
+  {KEY_ESC  , KEY_NONE    , KEY_NONE, KEY_NONE      , KEY_NONE  , KEY_NONE,/*     */KEY_NONE      , KEY_NONE  , KEY_NONE , KEY_NONE, KEY_NONE    , KEY_DELETE},
+  {KEY_TAB  , KEY_PAGEUP  , KEY_NONE, KEY_UP        , KEY_NONE  , KEY_HOME,/*     */KEY_SLASH   , KEY_7   , KEY_8     , KEY_9 , KEY_MINUS , KEY_NONE},
+  {KEY_TAB  , KEY_PAGEDOWN, KEY_LEFT, KEY_DOWN      , KEY_RIGHT , KEY_END ,/*     */KEY_0       , KEY_4   , KEY_5     , KEY_6 , KEY_PLUS  , KEY_EQUAL},
+  {KEY_NONE , KEY_NONE    , KEY_NONE, KEY_NONE      , KEY_NONE  , KEY_NONE,/*     */KEY_ASTERISK, KEY_1   , KEY_2     , KEY_3 , KEY_DOT   , KEY_NONE},
   {KEY_NONE , KEY_NONE    , KEY_META, KEY_BACKSPACE , KEY_SHIFT , KEY_NONE,/*     */HOLD_LAYER_0  , KEY_SPACE , KEY_ENTER   , KEY_ALT , KEY_NONE    , KEY_NONE}
 };
 
